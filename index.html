@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;background:#030812;color:#66e5ff;
+font-family:Arial,sans-serif;height:100vh;
+display:flex;align-items:center;justify-content:center;
+overflow:hidden
+}
+.container{text-align:center;width:100%;padding:20px}
+h1{letter-spacing:8px;font-size:32px;text-shadow:0 0 20px #00cfff}
+.status{color:#9db9c9;font-size:14px;margin:15px}
+.core{
+width:220px;height:220px;border-radius:50%;
+border:2px solid #00d9ff;
+margin:30px auto;
+display:flex;align-items:center;justify-content:center;
+box-shadow:0 0 25px #00cfff, inset 0 0 25px #00cfff;
+animation:pulse 2s infinite
+}
+.core span{font-size:42px}
+@keyframes pulse{
+50%{box-shadow:0 0 50px #00cfff,inset 0 0 40px #00cfff}
+}
+button{
+background:#061a2d;border:1px solid #00cfff;color:#6eeaff;
+padding:15px;border-radius:12px;font-size:16px;
+margin:8px;cursor:pointer
+}
+input{
+width:90%;max-width:400px;background:#061a2d;
+color:white;padding:15px;border:1px solid #00cfff;
+border-radius:10px;font-size:16px
+}
+#reply{margin-top:20px;color:white;min-height:60px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>J.A.R.V.I.S.</h1>
+<div class="status" id="status">SYSTEM ONLINE</div>
+<div class="core"><span>◉</span></div>
+<button onclick="listen()">🎙 SPEAK</button>
+<br>
+<input id="command" placeholder="Enter command...">
+<button onclick="send()">SEND</button>
+<div id="reply">Awaiting command...</div>
+</div>
+<script>
+function speak(text){
+document.getElementById("reply").innerText=text;
+if("speechSynthesis" in window){
+speechSynthesis.cancel();
+let utter=new SpeechSynthesisUtterance(text);
+utter.lang="en-IN";
+speechSynthesis.speak(utter);
+}
+}
+function send(){
+let c=document.getElementById("command").value.toLowerCase().trim();
+if(!c)return;
+if(c.includes("hello"))speak("Hello. JARVIS is online.");
+else if(c.includes("time"))speak("The time is "+new Date().toLocaleTimeString());
+else if(c.includes("date"))speak("Today is "+new Date().toLocaleDateString());
+else if(c.includes("open youtube")){speak("Opening YouTube");window.open("https://youtube.com","_blank")}
+else if(c.includes("open google")){speak("Opening Google");window.open("https://google.com","_blank")}
+else if(c.includes("open whatsapp")){speak("Opening WhatsApp");window.open("https://wa.me/","_blank")}
+else if(c.includes("help"))speak("Try hello, time, date, open YouTube, open Google or open WhatsApp.");
+else speak("Command not recognized. Try help.");
+document.getElementById("command").value="";
+}
+function listen(){
+if(!("webkitSpeechRecognition" in window||"SpeechRecognition" in window)){
+speak("Speech recognition is not supported in this browser. Try Chrome.");
+return;
+}
+let R=window.SpeechRecognition||window.webkitSpeechRecognition;
+let r=new R();
+r.lang="en-IN";
+r.onstart=()=>document.getElementById("status").innerText="LISTENING...";
+r.onresult=e=>{
+document.getElementById("command").value=e.results[0][0].transcript;
+send();
+};
+r.onerror=()=>document.getElementById("status").innerText="VOICE ERROR";
+r.onend=()=>document.getElementById("status").innerText="SYSTEM ONLINE";
+r.start();
+}
+</script>
+</body>
+</html>
